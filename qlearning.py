@@ -92,6 +92,45 @@ class Board(list):
             print(currRow)
 
 
+def getUserInputForBoard():
+    isSelecting = True
+    listOfTileValues = []
+    output_type = ""
+
+    while(isSelecting):
+        print("Enter your board input, EX: '15 12 8 6'\n(first two ints=goal locations, third int=forbidden location, fourth int=wall location)")
+        tile_input = input()
+        listOfStringTileValues = tile_input.split(' ')
+        print(listOfStringTileValues)
+        print(len(listOfStringTileValues))
+        for i in range(len(listOfStringTileValues)):
+            print("WORKING")
+            if (listOfStringTileValues[i].isdigit() == False):
+                print("NOT A VALID SEQUENCE OF INTEGERS")
+                listOfTileValues = []
+                continue
+            else:
+                listOfTileValues.append(listOfStringTileValues[i])
+
+        print("Enter your output type:\n'p':print optimal policy\n'q':print optimal values")
+        outputtype_input = input()
+        if(outputtype_input!='q' and outputtype_input!='p'):
+            print("NOT A VALID OUTPUT TYPE")
+            output_type = ""
+            continue
+        else:
+            output_type = outputtype_input
+
+        break
+
+    print(listOfTileValues)
+    print(output_type)
+
+
+
+
+
+
 
 
 
@@ -109,3 +148,4 @@ Board.getTileUniqueIndex(Board1,16).type=TILE_TYPES.START
 print(Board.getTileUniqueIndex(Board1,16))
 
 Board.printBoard(Board1)
+getUserInputForBoard()
