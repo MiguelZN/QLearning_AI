@@ -35,6 +35,7 @@ class TILE_TYPES(Enum):
 class Tile:
     def __init__(self, type=TILE_TYPES.ORDINARY,unique_index:int=-1):
         #self.qvalue = 0 #All tile q values start at 0
+        self.value = 0 #optimal value function uses this
         self.type = type
         self.unique_index = unique_index
 
@@ -226,7 +227,7 @@ class QLearningAgent:
         self.currentLocationRowColumn = self.startLocationRowColumn
 
 
-
+        self.totalrewards = 0
 
     def getLocation(self):
         return self.currentLocationRowColumn
@@ -325,17 +326,41 @@ def getUserInputForBoard():
     listOfTileValues = list(listOfTileValues)
 
     tiles = {
-        "goals":listOfTileValues[0:2],
-        "forbidden":listOfTileValues[2],
-        "wall":listOfTileValues[3]
+        TILE_TYPES.GOAL.__str__():listOfTileValues[0:2],
+        TILE_TYPES.FORBIDDEN.__str__():listOfTileValues[2],
+        TILE_TYPES.WALL.__str__():listOfTileValues[3]
     }
     print(listOfTileValues)
     print(output_type)
     print(tiles)
     return tiles
 
+def addTilesToBoard(board:Board,tiles:dict):
+    statetypes = tiles.keys()
+
+    for state in statetypes:
+        values = tiles[state]
+
+        print("STATE:"+str(state))
+        print("VALUES:"+str(values))
+
+        if(isinstance(values,list)):
+            for ui in values:
+                Board.getTileUniqueIndex(board,int(ui)).type = state
+        elif (isinstance(values, str)):
+            #print("ENTERED2")
+            value = int(values)
+            #print("VALUE:"+str(value))
+            Board.getTileUniqueIndex(board, value).type = state
 
 
+
+def QLearningAgentBoardExample(iterations:int):
+    board = Board()
+
+    #t is our time
+    for t in range(0,iterations,1):
+        ''
 
 
 
@@ -354,15 +379,18 @@ print(QL.REACH_GOAL>=10)
 print(Board())
 Board1 = Board()
 Board1.getTileUniqueIndex(2).qvalues["EAST"]= 5
-print(max(Board1.getTileUniqueIndex(2).qvalues,key=Board1.getTileUniqueIndex(2).qvalues.get))
-print(Board.getTileUniqueIndex(Board1,16))
-Board.getTileUniqueIndex(Board1,16).type=TILE_TYPES.START
-print(Board.getTileUniqueIndex(Board1,16))
+# print(max(Board1.getTileUniqueIndex(2).qvalues,key=Board1.getTileUniqueIndex(2).qvalues.get))
+# print(Board.getTileUniqueIndex(Board1,16))
+# Board.getTileUniqueIndex(Board1,16).type=TILE_TYPES.START
+# print(Board.getTileUniqueIndex(Board1,16))
 
 Board.printBoard(Board1)
-getUserInputForBoard()
+#tiles = getUserInputForBoard()
+tiles = {'goal': ['6', '8'], 'forbidden': '12', 'wall': '15'}
+addTilesToBoard(Board1,tiles)
+Board.printBoard(Board1)
 
-print(Board1.agent.currentLocationRowColumn)
-Board1.agent.move(MOVES.NORTH)
-Board1.agent.move(MOVES.NORTH)
-Board1.agent.move(MOVES.NORTH)
+# print(Board1.agent.currentLocationRowColumn)
+# Board1.agent.move(MOVES.NORTH)
+# Board1.agent.move(MOVES.NORTH)
+# Board1.agent.move(MOVES.NORTH)
