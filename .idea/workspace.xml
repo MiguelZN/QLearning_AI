@@ -16,8 +16,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/qlearning.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="250">
-              <caret line="516" column="34" lean-forward="true" selection-start-line="516" selection-start-column="34" selection-end-line="516" selection-end-column="34" />
+            <state relative-caret-position="140">
+              <caret line="532" column="102" selection-start-line="532" selection-start-column="102" selection-end-line="532" selection-end-column="102" />
               <folding>
                 <element signature="e#84#105#0" expanded="true" />
               </folding>
@@ -64,6 +64,15 @@
       <find>bounds</find>
       <find>Location</find>
       <find>setting</find>
+      <find>qvalues</find>
+      <find>lambda</find>
+      <find>wall</find>
+      <find>max</find>
+      <find>max(</find>
+      <find>qState</find>
+      <find>get</find>
+      <find>isValidMove</find>
+      <find>QL</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -149,7 +158,7 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.34267515" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.2687898" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -199,8 +208,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/qlearning.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="250">
-          <caret line="516" column="34" lean-forward="true" selection-start-line="516" selection-start-column="34" selection-end-line="516" selection-end-column="34" />
+        <state relative-caret-position="140">
+          <caret line="532" column="102" selection-start-line="532" selection-start-column="102" selection-end-line="532" selection-end-column="102" />
           <folding>
             <element signature="e#84#105#0" expanded="true" />
           </folding>
