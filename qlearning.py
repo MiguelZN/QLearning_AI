@@ -17,7 +17,7 @@ class MOVES(Enum):
     EXIT = 'exit' #?
 
     def __repr__(self):
-        return self.__str__()
+        return self.value
 
     def __str__(self):
         return self.value
@@ -141,25 +141,31 @@ class Board(list):
 
         return (row,column)
 
-    def getTileFromLocationGivenMove(boardObject,rowcolumntuple,move:MOVES):
-        nextTile = None
+    def getTileFromLocationGivenMove(boardObject,rowcolumntuple,move):
         currLocation = rowcolumntuple
         currRow = currLocation[0]
         currColumn = currLocation[1]
 
         if(move==MOVES.NORTH):
-            nextTile= boardObject[currRow - 1][currColumn]
+            #print("ENTERED")
+            next_tile= boardObject[currRow - 1][currColumn]
+            #print("WANT THIS TILE:")
+            #print(next_tile)
+            return next_tile
 
-        if(move==MOVES.SOUTH):
-            nextTile= boardObject[currRow + 1][currColumn]
+        elif(move==MOVES.SOUTH):
+            next_tile= boardObject[currRow + 1][currColumn]
+            return next_tile
 
-        if(move==MOVES.EAST):
-            nextTile= boardObject[currRow][currColumn+1]
+        elif(move==MOVES.EAST):
+            next_tile= boardObject[currRow][currColumn+1]
+            return next_tile
 
-        if(move==MOVES.WEST):
-            nextTile=boardObject[currRow][currColumn-1]
+        elif(move==MOVES.WEST):
+            next_tile=boardObject[currRow][currColumn-1]
+            return next_tile
 
-        return nextTile
+        return None
 
     def isRowColumnWithinBounds(boardObject,rowcolumntuple:tuple):
         row = rowcolumntuple[0]
@@ -179,7 +185,7 @@ class Board(list):
 
             print(currRow)
 
-    def printTileValuesBoard(boardObject):
+    def printQValuesBoard(boardObject):
         print("Q:")
         for i in range(boardObject.n_Rows):
             currRow = ""
@@ -199,7 +205,7 @@ class Board(list):
 
             print(currRow)
 
-    def printQValuesBoard(boardObject):
+    def printQActionValuesBoard(boardObject):
         print("BOARD:")
         for i in range(boardObject.n_Rows):
             currRow = ""
@@ -309,6 +315,8 @@ class QLearningAgent:
         maxvalue = -float("inf")
         pickedMove = None
 
+        #For a random move, keeps randomly picking until it gets a move that results in a valid tile
+        #EX: if starting at the bottom row of board, you cannot pick move 'SOUTH' because it will not work
         if(p<=QL.EPSILON):
             while(True):
                 pickedMove = random.choice([MOVES.NORTH,MOVES.EAST,MOVES.WEST,MOVES.SOUTH])
@@ -447,8 +455,8 @@ def addTilesToBoard(board:Board,tiles:dict):
     for state in statetypes:
         values = tiles[state]
 
-        print("STATE:"+str(state))
-        print("VALUES:"+str(values))
+        #print("STATE:"+str(state))
+        #print("VALUES:"+str(values))
 
         if(isinstance(values,list)):
             for ui in values:
@@ -481,18 +489,37 @@ def addRewardsValuesToTiles(board:Board):
 def QLearningAgentBoardExample(iterations:int):
     board = Board()
     # tiles = getUserInputForBoard()
-    tiles = {'goal': ['16', '8'], 'forbidden': '12', 'wall': '6'}
+    tiles = {'goal': ['16', '6'], 'forbidden': '12', 'wall': '9'}
     addTilesToBoard(board, tiles)
     addRewardsValuesToTiles(board)
     Board.printBoard(board)
     Board.printTileRewardsBoard(board)
-    Board.printTileValuesBoard(board)
+    Board.printQValuesBoard(board)
     #Board.printQValuesBoard(board)
 
 
     #t is our time variable
     for t in range(0,iterations,1):
-        print(board.agent.generatePolicyMove())
+        policy_move_tuple = board.agent.generatePolicyMove() #Picks the best s' q value from applying all different actions on s state
+
+        policy_move = policy_move_tuple[0] #argmax a Q*(s,a) action
+        policy_move_value = policy_move_tuple[1]#max Q*(s,a) value
+        print(str(policy_move))
+
+
+        qprimestate = Board.getTileFromLocationGivenMove(board,board.agent.getLocation(),policy_move)
+        #print("Q PRIME:"+str(qprimestate))
+
+        reward = qprimestate.reward
+
+        print("REWARD:"+str(reward))
+
+        #Setting new Q(s,a) value:
+        qstateTile = board[board.agent.getLocation()[0]][board.agent.getLocation()[1]]
+        qstateTile.value = (1-QL.ALPHA.value)*(qstateTile.value)+QL.ALPHA.value*(reward+QL.DISCOUNT_RATE.value*policy_move_value)
+        print("NEW QSTATE VALUE:"+str(qstateTile.value))
+
+        Board.printQValuesBoard(board)
 
 
         #After getting rewards (positive,negative) reset the location of the agent to start
@@ -538,4 +565,6 @@ Board1.getTileUniqueIndex(2).qvalues["EAST"]= 5
 # Board1.agent.move(MOVES.NORTH)
 # Board1.agent.move(MOVES.NORTH)
 
-QLearningAgentBoardExample(10)
+print(MOVES.NORTH)
+
+QLearningAgentBoardExample(300)
