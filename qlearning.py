@@ -79,7 +79,7 @@ class Tile:
         return "("+str(self.type)+"|Index "+str(self.unique_index)+")"
 
 class Board(list):
-    def __init__(self,n_Rows:int=4,n_Columns:int=4, start_index = 2):
+    def __init__(self,n_Rows:int=4,n_Columns:int=4, start_index = 4):
         self.n_Rows = n_Rows
         self.n_Columns = n_Columns
         self.size = self.n_Rows*self.n_Columns
@@ -213,18 +213,19 @@ class Board(list):
         maxaction = None
 
         for i in range(len(sortedQActionsValuesTuple)):
-            print("TUPLE:"+str(sortedQActionsValuesTuple))
+            #print("TUPLE:"+str(sortedQActionsValuesTuple))
             currentActionValue = sortedQActionsValuesTuple[i]
             currentaction = currentActionValue[0]
             currentvalue = currentActionValue[1]
 
             if(boardObject.agent.isValidMove(currentaction)):
-
                 maxvalue = currentvalue
                 maxaction = currentaction
 
-                print("BEST ACTION:"+str((maxaction,maxvalue)))
+                #print("BEST ACTION:"+str((maxaction,maxvalue)))
                 return (maxaction,maxvalue)
+            else:
+                print("CANNOT DO ACTION:"+str(currentaction))
 
         return (maxaction,maxvalue)
 
@@ -336,11 +337,10 @@ class QLearningAgent:
         if(p<=QL.EPSILON):
             while(True):
                 pickedMove = random.choice([MOVES.NORTH.value,MOVES.EAST.value,MOVES.WEST.value,MOVES.SOUTH.value])
-                try:
-                    currenttile = Board.getTileFromLocationGivenMove(self.board, currLocation, pickedMove)
+
+                if(self.board.agent.isValidMove(pickedMove)):
                     break
-                except:
-                    print("COULD NOT INDEX TO THIS TILE GIVEN THIS MOVE:"+str(pickedMove))
+
 
             maxvalue = currentState.qvalues[pickedMove]
         elif(p<=QL.EPSILON+QL.ACT_CURRENT_POLICY):
@@ -348,8 +348,8 @@ class QLearningAgent:
             pickedMove =qstateargmaxtuple[0]
             maxvalue = qstateargmaxtuple[1]
 
-        print("FSDJFLSDF")
-        print(pickedMove,maxvalue)
+        #print("FSDJFLSDF")
+        #print(pickedMove,maxvalue)
         return (pickedMove,maxvalue)
 
     def resetToStartLocation(self):
@@ -359,10 +359,10 @@ class QLearningAgent:
         movetorow = self.getLocation()[0]
         movetocolumn = self.getLocation()[1]
 
-        print("BEFORE:"+str((movetorow,movetocolumn)))
+        #print("BEFORE:"+str((movetorow,movetocolumn)))
 
         if(move==MOVES.NORTH.value):
-            movetorow=-1
+            movetorow-=1
 
         elif(move==MOVES.SOUTH.value):
             movetorow+=1
@@ -373,7 +373,7 @@ class QLearningAgent:
         elif(move==MOVES.WEST.value):
             movetocolumn-=1
 
-        print("IS THIS VALID?:"+str((movetorow,movetocolumn)))
+        #print("IS THIS VALID?:"+str((movetorow,movetocolumn)))
 
         return Board.isRowColumnWithinBounds(self.board,(movetorow,movetocolumn))
 
@@ -399,9 +399,9 @@ class QLearningAgent:
         nextcolumn = nextLocationRowColumn[1]
 
         if(Board.isRowColumnWithinBounds(self.board,nextLocationRowColumn)):
-            print("MOVING AGENT FROM:"+str(self.currentLocationRowColumn))
+            #print("MOVING AGENT FROM:"+str(self.currentLocationRowColumn))
             self.currentLocationRowColumn = nextLocationRowColumn
-            print("MOVED AGENT TO:"+str(self.currentLocationRowColumn))
+            #print("MOVED AGENT TO:"+str(self.currentLocationRowColumn))
         else:
             print("DID NOT MOVE AGENT, OUT OF BOUNDS")
 
@@ -507,7 +507,7 @@ def addRewardsValuesToTiles(board:Board):
 def QLearningAgentBoardExample(iterations:int):
     board = Board()
     # tiles = getUserInputForBoard()
-    tiles = {'goal': ['16', '8'], 'forbidden': '12', 'wall': '6'}
+    tiles = {'goal': ['16', '5'], 'forbidden': '12', 'wall': '6'}
     addTilesToBoard(board, tiles)
     addRewardsValuesToTiles(board)
     Board.printBoard(board)
@@ -515,30 +515,28 @@ def QLearningAgentBoardExample(iterations:int):
     Board.printQActionValuesBoard(board)
     #Board.printQValuesBoard(board)
 
+    numeroftimesresetted = 0
+
 
     #t is our time variable
     for t in range(0,iterations,1):
         #Current State: Q(s,a) and where agent is currently at
         qstate = board[board.agent.getLocation()[0]][board.agent.getLocation()[1]]
+        print("QSTATE:"+str(qstate))
 
         #Picks the action with the highest Q-Value
         policy_tuple = board.agent.generatePolicyMoveCurrentState()
         policy_action = policy_tuple[0] #argmax a Q*(s,a) action
         policy_value = policy_tuple[1]#max Q*(s,a) value
 
+        #S prime state
+        sprimestate = Board.getTileFromLocationGivenMove(board,board.agent.getLocation(),policy_action)
 
-        print("CURRENT STATE:"+str(qstate.unique_index))
-        print('POLICY MOVE:'+str(policy_action))
-
-        qprimestate = Board.getTileFromLocationGivenMove(board,board.agent.getLocation(),policy_action)
-        print("Q PRIME:"+str(qprimestate))
-        reward = qprimestate.reward #R(s,a,s')
-
-        print(qprimestate.unique_index)
-
+        #Reward: R(s,a,s')
+        reward = sprimestate.reward
         print("REWARD:"+str(reward))
 
-        maxqsprimetuple = Board.getQStateMaxQActionValue(board,qprimestate)
+        maxqsprimetuple = Board.getQStateMaxQActionValue(board,sprimestate)
         maxqsprimevalue = maxqsprimetuple[1]
         print("MAX Q S_PRIME:"+str(maxqsprimevalue))
 
@@ -546,12 +544,13 @@ def QLearningAgentBoardExample(iterations:int):
         qstateoldvalue= qstate.qvalues[str(policy_action)]
         print("OLD Q STATE VALUE:"+str(qstateoldvalue))
         qstate.qvalues[str(policy_action)] = (1-QL.ALPHA.value)*qstateoldvalue+QL.ALPHA.value*(reward+QL.DISCOUNT_RATE.value*maxqsprimevalue)
+        #qstate.qvalues[str(policy_action)] = reward+0.8*maxqsprimevalue
         print("NEW QSTATE VALUE:"+str(qstate.value))
 
         Board.printQActionValuesBoard(board)
 
         #Stops agent from moving to a wall s' state
-        if(qprimestate.type!=TILE_TYPES.WALL):
+        if(sprimestate.type!=TILE_TYPES.WALL):
             #Moving agent
             board.agent.move(policy_action)
 
@@ -559,8 +558,11 @@ def QLearningAgentBoardExample(iterations:int):
         #After getting rewards (positive,negative) reset the location of the agent to start
         if(board.agent.getTileLocation().type==TILE_TYPES.GOAL or board.agent.getTileLocation().type==TILE_TYPES.FORBIDDEN):
             board.agent.resetToStartLocation()
+            numeroftimesresetted+=1
+
+    print("RESETTED:"+str(numeroftimesresetted))
 
 
 #Main----------------
 #print(max({"key1":20,"key2":30},key=lambda key: {"key1":20,"key2":30}[key]))
-QLearningAgentBoardExample(5)
+QLearningAgentBoardExample(20000)
