@@ -7,7 +7,7 @@ Dr.Rahmat
 '''
 
 from enum import Enum
-import math
+import math,random
 
 class TILE_TYPES(Enum):
     START = 'start'
@@ -34,9 +34,25 @@ class TILE_TYPES(Enum):
 
 class Tile:
     def __init__(self, type=TILE_TYPES.ORDINARY,unique_index:int=-1):
-        self.qvalue = 0 #All tile q values start at 0
+        #self.qvalue = 0 #All tile q values start at 0
         self.type = type
         self.unique_index = unique_index
+
+        if(self.type==TILE_TYPES.GOAL):
+            self.qvalues = {
+                "EXIT":QL.REACH_GOAL
+            }
+        elif(self.type==TILE_TYPES.FORBIDDEN):
+            self.qvalues = {
+                'EXIT':QL.REACH_FORBIDDEN
+            }
+        else:
+            self.qvalues = {
+                "NORTH":0,
+                "SOUTH":0,
+                "WEST:":0,
+                "EAST:":0
+            }
 
 
     def __repr__(self):
@@ -120,6 +136,86 @@ class MOVES(Enum):
     SOUTH = 'south'
     EAST = 'east'
     WEST = 'west'
+    EXIT = 'exit' #?
+
+    def __repr__(self):
+        self.__str__()
+
+    def __str__(self):
+        self.value
+
+class QL(Enum):
+    LIVING_REWARD = 0.1
+    HITTING_WALL = -0.1
+    DISCOUNT_RATE = 0.2
+    ALPHA = 0.1 #Learning Rate
+
+
+    #EPSILON+ACT_CURRENT_POLICY = 1.0
+    EPSILON = 0.1 #Probability the agent acts randomly
+    ACT_CURRENT_POLICY = 1-EPSILON #Probability the agent acts based on current policy
+
+    REACH_GOAL = 100 #+100 reward
+    REACH_FORBIDDEN = -100 #-100 reward
+
+
+    #Convergence:
+    MAX_ITERATIONS = 10000 #after reached, set ellipson to 0
+
+    def __lt__(self, other):
+        if(isinstance(other,QL)):
+            return self.value<other.value
+        else:
+            return self.value<other
+
+    def __le__(self, other):
+        if(isinstance(other,QL)):
+            return self.value<=other.value
+        else:
+            return self.value<=other
+
+    def __eq__(self, other):
+        if (isinstance(other, QL)):
+            return self.value == other.value
+        else:
+            return self.value == other
+
+    def __gt__(self, other):
+        if (isinstance(other, QL)):
+            return self.value > other.value
+        else:
+            return self.value > other
+
+    def __ge__(self, other):
+        if (isinstance(other, QL)):
+            return self.value >= other.value
+        else:
+            return self.value >= other
+
+    def __add__(self, other):
+        if (isinstance(other, QL)):
+            return self.value + other.value
+        else:
+            return self.value + other
+
+    def __sub__(self, other):
+        if (isinstance(other, QL)):
+            return self.value - other.value
+        else:
+            return self.value - other
+
+    def __repr__(self):
+        return self.value
+
+    def __str__(self):
+        return self
+
+
+
+def getRandomProbability():
+    p = random.random()
+    return p
+
 
 class QLearningAgent:
     def __init__(self, board:Board,startLocation:int):
@@ -129,12 +225,30 @@ class QLearningAgent:
         self.board = board
         self.currentLocationRowColumn = self.startLocationRowColumn
 
+
+
+
     def getLocation(self):
         return self.currentLocationRowColumn
 
+    #4 possibilities
+    #Q*(s,a) tells us the best action at this current state
+    def qFunction(self):
+        p = getRandomProbability()
+        pickedMove = None
+        currentTile = self.board[self.getLocation()[0]][self.getLocation()[1]]
 
+        if(p<=QL.EPSILON):
+            pickedMove = random.choice([MOVES.NORTH,MOVES.EAST,MOVES.WEST,MOVES.SOUTH])
+        elif(p<=QL.EPSILON+QL.ACT_CURRENT_POLICY):
+            pickedMove = max(currentTile.qvalues,key=currentTile.qvalues.get)
+
+        #print(pickedMove)
+
+        return pickedMove
 
     def move(self,move:MOVES):
+        print("BEST MOVE AT:"+str(self.getLocation())+"|"+self.qFunction())
         nextLocationRowColumn = None
 
         currentrow = self.currentLocationRowColumn[0]
@@ -158,6 +272,8 @@ class QLearningAgent:
             print("MOVED AGENT TO:"+str(self.currentLocationRowColumn))
         else:
             print("DID NOT MOVE AGENT, OUT OF BOUNDS")
+
+
 
 
 
@@ -224,17 +340,21 @@ def getUserInputForBoard():
 
 
 
+# print(max([1,5,3,1]))
+#
+# print(max({"1":5,"2":4,"3":1}))
+#
+# print(getRandomProbability())
+#
+# print(TILE_TYPES.ORDINARY == 'ordinary')
+# print(TILE_TYPES.ORDINARY == TILE_TYPES.ORDINARY)
 
-
-
-
-
-
-print(TILE_TYPES.ORDINARY == 'ordinary')
-print(TILE_TYPES.ORDINARY == TILE_TYPES.ORDINARY)
+print(QL.REACH_GOAL>=10)
 
 print(Board())
 Board1 = Board()
+Board1.getTileUniqueIndex(2).qvalues["EAST"]= 5
+print(max(Board1.getTileUniqueIndex(2).qvalues,key=Board1.getTileUniqueIndex(2).qvalues.get))
 print(Board.getTileUniqueIndex(Board1,16))
 Board.getTileUniqueIndex(Board1,16).type=TILE_TYPES.START
 print(Board.getTileUniqueIndex(Board1,16))
@@ -243,6 +363,6 @@ Board.printBoard(Board1)
 getUserInputForBoard()
 
 print(Board1.agent.currentLocationRowColumn)
-Board1.agent.move(MOVES.WEST)
-Board1.agent.move(MOVES.WEST)
-Board1.agent.move(MOVES.WEST)
+Board1.agent.move(MOVES.NORTH)
+Board1.agent.move(MOVES.NORTH)
+Board1.agent.move(MOVES.NORTH)
