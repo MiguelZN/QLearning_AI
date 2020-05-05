@@ -9,6 +9,7 @@ Dr.Rahmat
 from enum import Enum
 import math,random
 
+#The agent's possible moves:
 class MOVES(Enum):
     NORTH = 'north'
     SOUTH = 'south'
@@ -25,6 +26,7 @@ class MOVES(Enum):
         elif(isinstance(other,MOVES)):
             return other.value==self.value
 
+#The different tile types/states:
 class TILE_TYPES(Enum):
     START = 'start'
     GOAL = 'goal'
@@ -84,6 +86,7 @@ class Tile:
     def __str__(self):
         return "("+str(self.type)+"|Index "+str(self.unique_index)+")"
 
+#Board class made up of Tile lists:
 class Board(list):
     def __init__(self,n_Rows:int=4,n_Columns:int=4, start_index = 2):
         self.n_Rows = n_Rows
@@ -482,7 +485,7 @@ def getUserInputForBoard():
 
     print(tiles)
 
-    print(listOfStringTileValues)
+    #print(listOfStringTileValues)
     return {"tiles":tiles,"optional_number":optionalNum,"output_type":output_type}
 
 def addTilesToBoard(board:Board,tiles:dict):
@@ -549,13 +552,13 @@ def getPathSequenceFromUpdatedQStates(board:Board):
 
         #Appending steps to list of steps:
         if(maxaction==MOVES.NORTH.value):
-            stepsToGoal.append(str(currentState.unique_index)+"↑")
+            stepsToGoal.append("   "+str(currentState.unique_index)+"↑")
         elif(maxaction==MOVES.SOUTH.value):
-            stepsToGoal.append(str(currentState.unique_index) + "↓")
+            stepsToGoal.append("   "+str(currentState.unique_index) + "↓")
         elif(maxaction==MOVES.EAST.value):
-            stepsToGoal.append(str(currentState.unique_index) + "→")
+            stepsToGoal.append("   "+str(currentState.unique_index) + "→")
         elif(maxaction==MOVES.WEST.value):
-            stepsToGoal.append(str(currentState.unique_index) + "←")
+            stepsToGoal.append("   "+str(currentState.unique_index) + "←")
 
         #Moves agent based on optimal policy action:
         board.agent.move(maxaction)
@@ -649,11 +652,10 @@ def QLearningAgentBoardExample(iterations:int):
             print(step)
     elif(output_type=='q'):
         qvalues = board.getTileUniqueIndex(optional_number).qvalues
-        print("↑" + str(qvalues[str(MOVES.NORTH)]))
-        print("→" + str(qvalues[str(MOVES.EAST)]))
-        print("←" + str(qvalues[str(MOVES.WEST)]))
-        print("↓" + str(qvalues[str(MOVES.SOUTH)]))
-
+        print("   ↑" + str(qvalues[str(MOVES.NORTH)]))
+        print("   →" + str(qvalues[str(MOVES.EAST)]))
+        print("   ←" + str(qvalues[str(MOVES.WEST)]))
+        print("   ↓" + str(qvalues[str(MOVES.SOUTH)]))
 
 
 #Main----------------
