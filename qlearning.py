@@ -143,10 +143,7 @@ class Board(list):
         currRow = currLocation[0]
         currColumn = currLocation[1]
 
-
-
         if(move==MOVES.NORTH.value):
-            print("ENTERED")
             next_tile= boardObject[currRow - 1][currColumn]
             return next_tile
 
@@ -162,7 +159,6 @@ class Board(list):
             next_tile=boardObject[currRow][currColumn-1]
             return next_tile
 
-        print("fjdiafjdskalf")
         return None
 
     def isRowColumnWithinBounds(boardObject,rowcolumntuple:tuple):
@@ -175,26 +171,16 @@ class Board(list):
             return False
 
     def printBoard(boardObject):
-        print("BOARD:")
+        print("BOARD STATES:")
         for i in range(boardObject.n_Rows):
             currRow = ""
             for j in range(boardObject.n_Columns):
-                currRow+=str(boardObject[i][j])
-
-            print(currRow)
-
-    def printQValuesBoard(boardObject):
-        print("Q:")
-        for i in range(boardObject.n_Rows):
-            currRow = ""
-            for j in range(boardObject.n_Columns):
-                currRow += "("+str(boardObject[i][j].unique_index)+":"+str(boardObject[i][j].value)+")"
-
+                currRow+="("+str(boardObject[i][j].unique_index)+":"+str(boardObject[i][j].type)+")"
 
             print(currRow)
 
     def printTileRewardsBoard(boardObject):
-        print("R:")
+        print("Rewards:")
         for i in range(boardObject.n_Rows):
             currRow = ""
             for j in range(boardObject.n_Columns):
@@ -204,7 +190,7 @@ class Board(list):
             print(currRow)
 
     def printQActionValuesBoard(boardObject):
-        print("BOARD:")
+        print("Q-Values:")
         for i in range(boardObject.n_Rows):
             currRow = ""
             for j in range(boardObject.n_Columns):
@@ -215,7 +201,7 @@ class Board(list):
 
     def getQStateMaxQActionValue(boardObject,qstate:Tile)->tuple:
         sortedQActionsValuesTuple = sorted(qstate.qvalues.items(), key=lambda x: x[1], reverse=True)
-        print(sortedQActionsValuesTuple)
+        #print(sortedQActionsValuesTuple)
 
         maxvalue = -float("inf")
         maxaction = None
@@ -226,7 +212,7 @@ class Board(list):
             currentaction = currentActionValue[0]
             currentvalue = currentActionValue[1]
 
-            print(currentaction)
+            #print(currentaction)
 
             if(boardObject.agent.isValidMove(currentaction)):
                 maxvalue = currentvalue
@@ -235,13 +221,14 @@ class Board(list):
                 #print("BEST ACTION:"+str((maxaction,maxvalue)))
                 return (maxaction,maxvalue)
             else:
-                print("CANNOT DO ACTION:"+str(currentaction))
+                ''
+                #print("CANNOT DO ACTION:"+str(currentaction))
 
         return (maxaction,maxvalue)
 
 
 
-
+#Enumeration for storing QLearning variables:
 class QL(Enum):
     LIVING_REWARD = 0.1
     HITTING_WALL = -0.1
@@ -314,7 +301,7 @@ def getRandomProbability():
     p = random.random()
     return p
 
-
+#Agent class to navigate board with states: goal,forbidden,wall,normal,start
 class QLearningAgent:
     def __init__(self, board:Board,startLocation:int):
         self.startLocationUniqueIndex = startLocation #UniqueIndex
@@ -390,8 +377,6 @@ class QLearningAgent:
 
 
     def move(self,move:MOVES):
-        print("MOVfdsfdsE:"+str(move))
-        #print("BEST MOVE AT:"+str(self.getLocation())+"|"+self.qFunction())
         nextLocationRowColumn = None
 
         currentrow = self.currentLocationRowColumn[0]
@@ -409,8 +394,6 @@ class QLearningAgent:
         nextrow = nextLocationRowColumn[0]
         nextcolumn = nextLocationRowColumn[1]
 
-        print(nextLocationRowColumn)
-
         if(Board.isRowColumnWithinBounds(self.board,nextLocationRowColumn)):
             #print("MOVING AGENT FROM:"+str(self.currentLocationRowColumn))
             self.currentLocationRowColumn = nextLocationRowColumn
@@ -427,29 +410,55 @@ def getUserInputForBoard():
     isSelecting = True
     listOfTileValues = set([])
     output_type = ""
+    optionalNum = -1
 
     redoValues = False
 
+    numbersRequired = 4
+    charRequired = 1
+    optionalNumber = 1
+
     while(isSelecting):
-        print("Enter your board input, EX: '15 12 8 6'\n(first two ints=goal locations, third int=forbidden location, fourth int=wall location)")
+        print("Enter your board input, EX: '15 12 8 6 p' or '15 12 8 6 q 11'")
+        #(first two ints=goal locations, third int=forbidden location, fourth int=wall location)
         tile_input = input()
         listOfStringTileValues = tile_input.split(' ')
-        print(listOfStringTileValues)
-        print(len(listOfStringTileValues))
-        for i in range(len(listOfStringTileValues)):
-            print("WORKING")
+
+
+
+        #print(listOfStringTileValues)
+        #print(len(listOfStringTileValues))
+
+
+        for i in range(numbersRequired):
+            #print("WORKING")
             if (listOfStringTileValues[i].isdigit() == False):
-                print("NOT A VALID SEQUENCE OF INTEGERS")
+                #print("NOT A VALID SEQUENCE OF INTEGERS")
                 listOfTileValues = set([])
                 redoValues = True
                 break
             elif(listOfStringTileValues[i] in listOfTileValues):
-                print("CANNOT HAVE SAME LOCATIONS FOR A TILE")
+                #print("CANNOT HAVE SAME LOCATIONS FOR A TILE")
                 listOfTileValues = set([])
                 redoValues = True
                 break
             else:
                 listOfTileValues.add(listOfStringTileValues[i])
+
+        if(listOfStringTileValues[numbersRequired]=='p'):
+            output_type = 'p'
+
+
+        elif(listOfStringTileValues[numbersRequired]=='q' and len(listOfStringTileValues)>numbersRequired):
+            output_type = 'q'
+
+            if(listOfStringTileValues[numbersRequired+charRequired].isdigit()):
+                optionalNum = listOfStringTileValues[numbersRequired+charRequired]
+            else:
+                redoValues = True
+        else:
+            redoValues = True
+
 
         #If the user entered an invalid sequence of numbers, this causes the loop to redo
         #and have the user reenter input
@@ -457,28 +466,24 @@ def getUserInputForBoard():
             redoValues = False
             continue
 
-        print("Enter your output type:\n'p':print optimal policy\n'q':print optimal values")
-        outputtype_input = input()
-        if(outputtype_input!='q' and outputtype_input!='p'):
-            print("NOT A VALID OUTPUT TYPE")
-            output_type = ""
-            continue
-        else:
-            output_type = outputtype_input
 
         break
 
     listOfTileValues = list(listOfTileValues)
 
     tiles = {
-        TILE_TYPES.GOAL.__str__():listOfTileValues[0:2],
-        TILE_TYPES.FORBIDDEN.__str__():listOfTileValues[2],
-        TILE_TYPES.WALL.__str__():listOfTileValues[3]
+        'goal':[int(listOfStringTileValues[0]),int(listOfStringTileValues[1])],
+        'forbidden':int(listOfStringTileValues[2]),
+        'wall':int(listOfStringTileValues[3])
     }
-    print(listOfTileValues)
-    print(output_type)
+    #print(listOfTileValues)
+    #print(output_type)
+    #print(tiles)
+
     print(tiles)
-    return tiles
+
+    print(listOfStringTileValues)
+    return {"tiles":tiles,"optional_number":optionalNum,"output_type":output_type}
 
 def addTilesToBoard(board:Board,tiles:dict):
     statetypes = tiles.keys()
@@ -500,6 +505,9 @@ def addTilesToBoard(board:Board,tiles:dict):
             #print("VALUE:"+str(value))
             tile = Board.getTileUniqueIndex(board, value)
             tile.type = state
+        elif(isinstance(values,int)):
+            tile = Board.getTileUniqueIndex(board, values)
+            tile.type = state
 
 def addRewardsValuesToTiles(board:Board):
     for r in range(board.n_Rows):
@@ -508,10 +516,14 @@ def addRewardsValuesToTiles(board:Board):
 
             if(tile.type==TILE_TYPES.GOAL):
                 tile.reward = QL.REACH_GOAL.value
-                tile.value = QL.REACH_GOAL.value
+                tile.qvalues = {
+                    'exit': QL.REACH_GOAL.value
+                }
             elif(tile.type==TILE_TYPES.FORBIDDEN):
                 tile.reward = QL.REACH_FORBIDDEN.value
-                tile.value = QL.REACH_FORBIDDEN.value
+                tile.qvalues = {
+                    'exit': QL.REACH_FORBIDDEN.value
+                }
             elif(tile.type==TILE_TYPES.WALL):
                 tile.reward = QL.HITTING_WALL.value
             else:
@@ -521,20 +533,21 @@ def addRewardsValuesToTiles(board:Board):
 def getPathSequenceFromUpdatedQStates(board:Board):
     currentState = board[board.agent.startLocationRowColumn[0]][board.agent.startLocationRowColumn[1]]
     board.agent.currentLocationRowColumn = board.agent.startLocationRowColumn
-    #print(currentState)
-    #print(currentState.type)
 
+    #Stores the steps from the start state to a goal state:
     stepsToGoal = []
     #stepsToGoal.append(currentState)
-    print("STARTED PATH SEQUENCE:")
+    #print("STARTED PATH SEQUENCE:")
 
     i = 0
-    while(True and i<40):
-        print(currentState)
+    safeBreak = 50
+    while(True and i<safeBreak):
+        #print(currentState)
         maxqstateactionvalueBoard_tuple=Board.getQStateMaxQActionValue(board,currentState)
         maxaction = maxqstateactionvalueBoard_tuple[0]
-        print("MAX ACTION:"+str(maxaction))
+        #print("MAX ACTION:"+str(maxaction))
 
+        #Appending steps to list of steps:
         if(maxaction==MOVES.NORTH.value):
             stepsToGoal.append(str(currentState.unique_index)+"↑")
         elif(maxaction==MOVES.SOUTH.value):
@@ -544,40 +557,44 @@ def getPathSequenceFromUpdatedQStates(board:Board):
         elif(maxaction==MOVES.WEST.value):
             stepsToGoal.append(str(currentState.unique_index) + "←")
 
-
+        #Moves agent based on optimal policy action:
         board.agent.move(maxaction)
         currentState = board[board.agent.currentLocationRowColumn[0]][board.agent.currentLocationRowColumn[1]]
 
+        #Exits loop once the agent reached the goal state:
         if (currentState.type == TILE_TYPES.GOAL.value):
-            print("BROKE")
+            #print("BROKE")
             #stepsToGoal.append(currentState)
             break
 
-
         i+=1
-
-    print(stepsToGoal)
+    #print(stepsToGoal)
     return stepsToGoal
 
 def QLearningAgentBoardExample(iterations:int):
     board = Board()
-    # tiles = getUserInputForBoard()
-    tiles = {'goal': ['15', '12'], 'forbidden': '8', 'wall': '6'}
+    userinput = getUserInputForBoard()
+
+    print("Intial:")
+    output_type = userinput["output_type"]
+    optional_number = int(userinput["optional_number"])
+    tiles = userinput["tiles"]
+    #tiles = {'goal': ['15', '12'], 'forbidden': '8', 'wall': '6'}
     addTilesToBoard(board, tiles)
     addRewardsValuesToTiles(board)
     Board.printBoard(board)
     Board.printTileRewardsBoard(board)
     Board.printQActionValuesBoard(board)
-    #Board.printQValuesBoard(board)
 
-    numeroftimesresetted = 0
+    print("--")
 
+    numeroftimesresetted = 0 #Keeps track of the number of times the agent went resetted to the start location
 
     #t is our time variable
     for t in range(0,iterations,1):
         #Current State: Q(s,a) and where agent is currently at
         qstate = board[board.agent.getLocation()[0]][board.agent.getLocation()[1]]
-        print("QSTATE:"+str(qstate))
+        #print("QSTATE:"+str(qstate))
 
         #Picks the action with the highest Q-Value
         policy_tuple = board.agent.generatePolicyMoveCurrentState()
@@ -589,20 +606,25 @@ def QLearningAgentBoardExample(iterations:int):
 
         #Reward: R(s,a,s')
         reward = sprimestate.reward
-        print("REWARD:"+str(reward))
 
+        #argmax Q*(s',a')
         maxqsprimetuple = Board.getQStateMaxQActionValue(board,sprimestate)
         maxqsprimevalue = maxqsprimetuple[1]
-        print("MAX Q S_PRIME:"+str(maxqsprimevalue))
 
         #Setting new Q(s,a) value:
         qstateoldvalue= qstate.qvalues[str(policy_action)]
-        print("OLD Q STATE VALUE:"+str(qstateoldvalue))
-        qstate.qvalues[str(policy_action)] = (1-QL.ALPHA.value)*qstateoldvalue+QL.ALPHA.value*(reward+QL.DISCOUNT_RATE.value*maxqsprimevalue)
-        #qstate.qvalues[str(policy_action)] = reward+0.8*maxqsprimevalue
-        print("NEW QSTATE VALUE:"+str(qstate.value))
 
-        Board.printQActionValuesBoard(board)
+        #Updates the policies of states only if they are not the GOAL and not FORBIDDEN
+        if(qstate.type!=TILE_TYPES.GOAL and qstate.type!=TILE_TYPES.FORBIDDEN):
+            qstate.qvalues[str(policy_action)] = (1-QL.ALPHA.value)*qstateoldvalue+QL.ALPHA.value*(reward+QL.DISCOUNT_RATE.value*maxqsprimevalue)
+
+            #Below is a different Q(s,a) function:
+            #qstate.qvalues[str(policy_action)] = reward+0.8*maxqsprimevalue
+
+
+        #Uncomment to print out the board and board Q-Values:
+        #Board.printBoard(board)
+        #Board.printQActionValuesBoard(board)
 
         #Stops agent from moving to a wall s' state
         if(sprimestate.type!=TILE_TYPES.WALL):
@@ -615,11 +637,24 @@ def QLearningAgentBoardExample(iterations:int):
             board.agent.resetToStartLocation()
             numeroftimesresetted+=1
 
-    print("RESETTED:"+str(numeroftimesresetted))
+    #Uncomment to print the number of times the agent has resetted:
+    #print("RESETTED:"+str(numeroftimesresetted))
 
-    getPathSequenceFromUpdatedQStates(board)
+    print("Output:")
+    Board.printQActionValuesBoard(board)
+    print("\nAgent Steps:")
+    if(output_type=='p'):
+        stepsToGoalFromStart = getPathSequenceFromUpdatedQStates(board)
+        for step in stepsToGoalFromStart:
+            print(step)
+    elif(output_type=='q'):
+        qvalues = board.getTileUniqueIndex(optional_number).qvalues
+        print("↑" + str(qvalues[str(MOVES.NORTH)]))
+        print("→" + str(qvalues[str(MOVES.EAST)]))
+        print("←" + str(qvalues[str(MOVES.WEST)]))
+        print("↓" + str(qvalues[str(MOVES.SOUTH)]))
+
 
 
 #Main----------------
-#print(max({"key1":20,"key2":30},key=lambda key: {"key1":20,"key2":30}[key]))
 QLearningAgentBoardExample(QL.MAX_ITERATIONS.value)
