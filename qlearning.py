@@ -19,6 +19,12 @@ class MOVES(Enum):
     def __str__(self):
         return self.value
 
+    def __eq__(self, other):
+        if(isinstance(other,str)):
+            return self.value==str
+        elif(isinstance(other,MOVES)):
+            return other.value==self.value
+
 class TILE_TYPES(Enum):
     START = 'start'
     GOAL = 'goal'
@@ -79,7 +85,7 @@ class Tile:
         return "("+str(self.type)+"|Index "+str(self.unique_index)+")"
 
 class Board(list):
-    def __init__(self,n_Rows:int=4,n_Columns:int=4, start_index = 4):
+    def __init__(self,n_Rows:int=4,n_Columns:int=4, start_index = 2):
         self.n_Rows = n_Rows
         self.n_Columns = n_Columns
         self.size = self.n_Rows*self.n_Columns
@@ -209,6 +215,8 @@ class Board(list):
 
     def getQStateMaxQActionValue(boardObject,qstate:Tile)->tuple:
         sortedQActionsValuesTuple = sorted(qstate.qvalues.items(), key=lambda x: x[1], reverse=True)
+        print(sortedQActionsValuesTuple)
+
         maxvalue = -float("inf")
         maxaction = None
 
@@ -217,6 +225,8 @@ class Board(list):
             currentActionValue = sortedQActionsValuesTuple[i]
             currentaction = currentActionValue[0]
             currentvalue = currentActionValue[1]
+
+            print(currentaction)
 
             if(boardObject.agent.isValidMove(currentaction)):
                 maxvalue = currentvalue
@@ -380,6 +390,7 @@ class QLearningAgent:
 
 
     def move(self,move:MOVES):
+        print("MOVfdsfdsE:"+str(move))
         #print("BEST MOVE AT:"+str(self.getLocation())+"|"+self.qFunction())
         nextLocationRowColumn = None
 
@@ -397,6 +408,8 @@ class QLearningAgent:
 
         nextrow = nextLocationRowColumn[0]
         nextcolumn = nextLocationRowColumn[1]
+
+        print(nextLocationRowColumn)
 
         if(Board.isRowColumnWithinBounds(self.board,nextLocationRowColumn)):
             #print("MOVING AGENT FROM:"+str(self.currentLocationRowColumn))
@@ -504,10 +517,52 @@ def addRewardsValuesToTiles(board:Board):
             else:
                 tile.reward = QL.LIVING_REWARD.value
 
+
+def getPathSequenceFromUpdatedQStates(board:Board):
+    currentState = board[board.agent.startLocationRowColumn[0]][board.agent.startLocationRowColumn[1]]
+    board.agent.currentLocationRowColumn = board.agent.startLocationRowColumn
+    #print(currentState)
+    #print(currentState.type)
+
+    stepsToGoal = []
+    #stepsToGoal.append(currentState)
+    print("STARTED PATH SEQUENCE:")
+
+    i = 0
+    while(True and i<40):
+        print(currentState)
+        maxqstateactionvalueBoard_tuple=Board.getQStateMaxQActionValue(board,currentState)
+        maxaction = maxqstateactionvalueBoard_tuple[0]
+        print("MAX ACTION:"+str(maxaction))
+
+        if(maxaction==MOVES.NORTH.value):
+            stepsToGoal.append(str(currentState.unique_index)+"↑")
+        elif(maxaction==MOVES.SOUTH.value):
+            stepsToGoal.append(str(currentState.unique_index) + "↓")
+        elif(maxaction==MOVES.EAST.value):
+            stepsToGoal.append(str(currentState.unique_index) + "→")
+        elif(maxaction==MOVES.WEST.value):
+            stepsToGoal.append(str(currentState.unique_index) + "←")
+
+
+        board.agent.move(maxaction)
+        currentState = board[board.agent.currentLocationRowColumn[0]][board.agent.currentLocationRowColumn[1]]
+
+        if (currentState.type == TILE_TYPES.GOAL.value):
+            print("BROKE")
+            #stepsToGoal.append(currentState)
+            break
+
+
+        i+=1
+
+    print(stepsToGoal)
+    return stepsToGoal
+
 def QLearningAgentBoardExample(iterations:int):
     board = Board()
     # tiles = getUserInputForBoard()
-    tiles = {'goal': ['16', '5'], 'forbidden': '12', 'wall': '6'}
+    tiles = {'goal': ['15', '12'], 'forbidden': '8', 'wall': '6'}
     addTilesToBoard(board, tiles)
     addRewardsValuesToTiles(board)
     Board.printBoard(board)
@@ -562,7 +617,9 @@ def QLearningAgentBoardExample(iterations:int):
 
     print("RESETTED:"+str(numeroftimesresetted))
 
+    getPathSequenceFromUpdatedQStates(board)
+
 
 #Main----------------
 #print(max({"key1":20,"key2":30},key=lambda key: {"key1":20,"key2":30}[key]))
-QLearningAgentBoardExample(20000)
+QLearningAgentBoardExample(QL.MAX_ITERATIONS.value)

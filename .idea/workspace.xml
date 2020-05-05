@@ -15,8 +15,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/qlearning.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="952">
-              <caret line="567" column="32" selection-start-line="567" selection-start-column="32" selection-end-line="567" selection-end-column="32" />
+            <state relative-caret-position="59">
+              <caret line="608" column="25" lean-forward="true" selection-start-line="608" selection-start-column="25" selection-end-line="608" selection-end-column="25" />
               <folding>
                 <element signature="e#84#105#0" expanded="true" />
               </folding>
@@ -66,13 +66,13 @@
       <find>qvalues</find>
       <find>lambda</find>
       <find>wall</find>
-      <find>max</find>
-      <find>max(</find>
       <find>qState</find>
       <find>get</find>
       <find>isValidMove</find>
       <find>QL</find>
       <find>TUPLE</find>
+      <find>max(</find>
+      <find>max</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -85,7 +85,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds">
     <option name="x" value="720" />
     <option name="y" value="23" />
     <option name="width" value="720" />
@@ -150,15 +150,16 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="877" extended-state="6" />
+    <frame x="720" y="23" width="720" height="877" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.042918455" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.8624204" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.4089172" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.5312102" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -190,6 +191,17 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout-to-restore>
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/qlearning.py</url>
+          <line>547</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="editorHistoryManager">
     <entry file="file:///Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/enum.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -207,8 +219,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/qlearning.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="952">
-          <caret line="567" column="32" selection-start-line="567" selection-start-column="32" selection-end-line="567" selection-end-column="32" />
+        <state relative-caret-position="59">
+          <caret line="608" column="25" lean-forward="true" selection-start-line="608" selection-start-column="25" selection-end-line="608" selection-end-column="25" />
           <folding>
             <element signature="e#84#105#0" expanded="true" />
           </folding>
