@@ -233,7 +233,7 @@ class Board(list):
 
 #Enumeration for storing QLearning variables:
 class QL(Enum):
-    LIVING_REWARD = 0.1
+    LIVING_REWARD =-0.1
     HITTING_WALL = -0.1
     DISCOUNT_RATE = 0.2
     ALPHA = 0.1 #Learning Rate
@@ -321,6 +321,10 @@ class QLearningAgent:
 
     def getTileLocation(self):
         return self.board[self.currentLocationRowColumn[0]][self.currentLocationRowColumn[1]]
+
+    #(unused)
+    def spawnRandomLocationOnBoard(self):
+        newspawnrowcolumn = ''
 
     #4 possibilities
     #Q*(s,a) tells us the best action at this current state
